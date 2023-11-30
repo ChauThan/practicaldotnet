@@ -21,6 +21,7 @@ app.MapGet("/getdata/{id}", (int id) =>
     var rndNumber = Random.Shared.Next(1, 101);
     if (rndNumber >= id)
     {
+        Console.WriteLine("There is an error.");
         return Results.StatusCode(500);
     }
 
