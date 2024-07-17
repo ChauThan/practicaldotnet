@@ -1,14 +1,12 @@
-using System.Threading.Tasks;
 using ConferencePlanner.GraphQL.Data;
-using HotChocolate;
 
 namespace ConferencePlanner.GraphQL
 {
     public class Mutation
     {
         public async Task<AddSpeakerPayload> AddSpeakerAsync(
-            AddSpeakerInput input,
-            [Service] ApplicationDbContext context)
+           AddSpeakerInput input,
+           ApplicationDbContext context)
         {
             var speaker = new Speaker
             {
