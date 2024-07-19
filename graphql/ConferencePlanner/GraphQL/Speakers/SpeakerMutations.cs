@@ -13,7 +13,8 @@ namespace ConferencePlanner.GraphQL.Speakers
             {
                 Name = input.Name,
                 Bio = input.Bio,
-                WebSite = input.WebSite
+                WebSite = input.WebSite,
+                JobType = input.JobType
             };
 
             context.Speakers.Add(speaker);

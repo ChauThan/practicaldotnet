@@ -29,12 +29,14 @@ services
     .AddType<AttendeeType>()
     .AddType<SessionType>()
     .AddType<SpeakerType>()
-    .AddType<TrackType>()
+    .AddType<InstructorType>()
+    .AddType<PresenterType>()
     .AddGlobalObjectIdentification(true)
     .AddDataLoader<SpeakerByIdDataLoader>()
     .AddDataLoader<SessionByIdDataLoader>()
     .AddDataLoader<AttendeeByIdDataLoader>()
     .AddDataLoader<TrackByIdDataLoader>()
+    .TryAddTypeInterceptor<NodeResolverTypeInterceptor>()
     ;
 
 var app = builder.Build();

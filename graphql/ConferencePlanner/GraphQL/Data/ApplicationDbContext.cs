@@ -16,6 +16,14 @@ namespace ConferencePlanner.GraphQL.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
+                .Entity<Speaker>()
+                .Property(e => e.JobType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (JobType)Enum.Parse(typeof(JobType), v)
+                );
+
+            modelBuilder
                 .Entity<Attendee>()
                 .HasIndex(a => a.UserName)
                 .IsUnique();

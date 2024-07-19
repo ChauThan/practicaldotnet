@@ -1,40 +1,30 @@
-using Microsoft.EntityFrameworkCore;
 using ConferencePlanner.GraphQL.Data;
-using ConferencePlanner.GraphQL.DataLoader;
 
 namespace ConferencePlanner.GraphQL.Types
 {
-    public class SpeakerType : ObjectType<Speaker>
+    public class SpeakerType : InterfaceType<Speaker>
     {
-        protected override void Configure(IObjectTypeDescriptor<Speaker> descriptor)
+        protected override void Configure(IInterfaceTypeDescriptor<Speaker> descriptor)
         {
-            descriptor
-                .ImplementsNode()
-                .IdField(t => t.Id)
-                .ResolveNode(async (ctx, id) => await ctx.DataLoader<SpeakerByIdDataLoader>().LoadAsync(id, ctx.RequestAborted));
+            descriptor.Field(x => x.Id).ID();
 
-            descriptor
-                .Field(t => t.SessionSpeakers)
-                .ResolveWith<SpeakerResolvers>(t => t.GetSessionsAsync(default!, default!, default!, default))
-                .Name("sessions");
-        }
-
-        private class SpeakerResolvers
-        {
-            public async Task<IEnumerable<Session>> GetSessionsAsync(
-                [Parent] Speaker speaker,
-                ApplicationDbContext dbContext,
-                SessionByIdDataLoader sessionById,
-                CancellationToken cancellationToken)
+            descriptor.ResolveAbstractType((context, result) =>
             {
-                int[] sessionIds = await dbContext.Speakers
-                    .Where(s => s.Id == speaker.Id)
-                    .Include(s => s.SessionSpeakers)
-                    .SelectMany(s => s.SessionSpeakers.Select(t => t.SessionId))
-                    .ToArrayAsync();
+                if (result is Speaker speaker)
+                {
+                    IReadOnlyCollection<ObjectType>? types = null;
+                    types ??= context.Schema.GetPossibleTypes(this);
+                    foreach (var type in types)
+                    {
+                        if (type.Name == speaker.JobType.ToString())
+                        {
+                            return type;
+                        }
+                    }
+                }
 
-                return await sessionById.LoadAsync(sessionIds, cancellationToken);
-            }
+                return null;
+            });
         }
     }
 }

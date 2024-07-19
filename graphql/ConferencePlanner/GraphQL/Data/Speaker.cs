@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ConferencePlanner.GraphQL.Types;
 
 namespace ConferencePlanner.GraphQL.Data
 {
@@ -13,9 +14,18 @@ namespace ConferencePlanner.GraphQL.Data
         [StringLength(4000)]
         public string? Bio { get; set; }
 
+        public JobType JobType { get; set; }
+
         [StringLength(1000)]
         public virtual string? WebSite { get; set; }
 
         public ICollection<SessionSpeaker> SessionSpeakers { get; set; } = [];
+    }
+
+    public enum JobType
+    {
+        Instructor,
+
+        Presenter,
     }
 }
