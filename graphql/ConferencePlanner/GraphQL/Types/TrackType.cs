@@ -9,6 +9,10 @@ namespace ConferencePlanner.GraphQL.Types
         protected override void Configure(IObjectTypeDescriptor<Track> descriptor)
         {
             descriptor
+                .Field(t => t.Id)
+                .ID();
+
+            descriptor
                 .ImplementsNode()
                 .IdField(t => t.Id)
                 .ResolveNode(async (ctx, id) =>
@@ -17,6 +21,7 @@ namespace ConferencePlanner.GraphQL.Types
             descriptor
                 .Field(t => t.Sessions)
                 .ResolveWith<TrackResolvers>(t => t.GetSessionsAsync(default!, default!, default!, default))
+                .UsePaging<NonNullType<SessionType>>()
                 .Name("sessions");
         }
 

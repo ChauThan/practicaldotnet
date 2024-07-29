@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using ConferencePlanner.GraphQL.Data;
 using ConferencePlanner.GraphQL.DataLoader;
+using ConferencePlanner.GraphQL.Types;
 
 namespace ConferencePlanner.GraphQL.Sessions
 {
     [ExtendObjectType("Query")]
     public class SessionQueries
     {
+        [UsePaging(typeof(NonNullType<SessionType>))]
+        [UseFiltering(typeof(SessionFilterInputType))]
+        [UseSorting]
         public async Task<IEnumerable<Session>> GetSessionsAsync(
             ApplicationDbContext context,
             CancellationToken cancellationToken) =>

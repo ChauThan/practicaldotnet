@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ConferencePlanner.GraphQL.Types;
 
 namespace ConferencePlanner.GraphQL.Data
 {
@@ -11,6 +12,8 @@ namespace ConferencePlanner.GraphQL.Data
         [UseUpperCase]
         public string? Name { get; set; }
 
+
+        [UsePaging(typeof(NonNullType<SessionType>))]
         public ICollection<Session> Sessions { get; set; } = [];
     }
 }

@@ -32,6 +32,8 @@ services
     .AddType<InstructorType>()
     .AddType<PresenterType>()
     .AddGlobalObjectIdentification(true)
+    .AddFiltering()
+    .AddSorting()
     .AddDataLoader<SpeakerByIdDataLoader>()
     .AddDataLoader<SessionByIdDataLoader>()
     .AddDataLoader<AttendeeByIdDataLoader>()
