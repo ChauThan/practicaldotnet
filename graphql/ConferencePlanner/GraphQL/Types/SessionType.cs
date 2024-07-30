@@ -29,7 +29,7 @@ namespace ConferencePlanner.GraphQL.Types
 
             descriptor
                 .Field(t => t.TrackId)
-                .ID(nameof(Track));
+                .ID();
         }
 
         private class SessionResolvers

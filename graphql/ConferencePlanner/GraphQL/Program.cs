@@ -18,14 +18,18 @@ services
     .AddGraphQLServer()
     .RegisterDbContext<ApplicationDbContext>(DbContextKind.Pooled)
     .AddQueryType(d => d.Name("Query"))
+        .AddTypeExtension<AttendeeQueries>()
         .AddTypeExtension<SessionQueries>()
         .AddTypeExtension<SpeakerQueries>()
         .AddTypeExtension<TrackQueries>()
     .AddMutationType(d => d.Name("Mutation"))
+        .AddTypeExtension<AttendeeMutations>()
         .AddTypeExtension<SpeakerMutations>()
         .AddTypeExtension<SessionMutations>()
         .AddTypeExtension<TrackMutations>()
-    .AddType<SpeakerType>()
+    .AddSubscriptionType(d => d.Name("Subscription"))
+        .AddTypeExtension<AttendeeSubscriptions>()
+        .AddTypeExtension<SessionSubscriptions>()
     .AddType<AttendeeType>()
     .AddType<SessionType>()
     .AddType<SpeakerType>()
@@ -34,6 +38,7 @@ services
     .AddGlobalObjectIdentification(true)
     .AddFiltering()
     .AddSorting()
+    .AddInMemorySubscriptions()
     .AddDataLoader<SpeakerByIdDataLoader>()
     .AddDataLoader<SessionByIdDataLoader>()
     .AddDataLoader<AttendeeByIdDataLoader>()
@@ -44,6 +49,7 @@ services
 var app = builder.Build();
 app.MapGet("/", () => "Hello World!");
 
+app.UseWebSockets();
 app.MapGraphQL();
 
 app.Run();

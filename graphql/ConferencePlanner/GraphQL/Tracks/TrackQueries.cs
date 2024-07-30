@@ -1,13 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using ConferencePlanner.GraphQL.Data;
 using ConferencePlanner.GraphQL.DataLoader;
+using ConferencePlanner.GraphQL.Types;
 
 namespace ConferencePlanner.GraphQL.Tracks
 {
     [ExtendObjectType("Query")]
     public class TrackQueries
     {
-        [UsePaging]
+        [UsePaging(typeof(NonNullType<TrackType>))]
         public async Task<IEnumerable<Track>> GetTracksAsync(
             ApplicationDbContext context,
             CancellationToken cancellationToken) =>

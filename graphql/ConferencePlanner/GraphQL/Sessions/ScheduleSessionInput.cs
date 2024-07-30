@@ -1,12 +1,15 @@
-using ConferencePlanner.GraphQL.Data;
-
 namespace ConferencePlanner.GraphQL.Sessions
 {
-    public record ScheduleSessionInput(
-        [ID(nameof(Session))]
-        int SessionId,
-        [ID(nameof(Track))]
-        int TrackId,
-        DateTimeOffset StartTime,
-        DateTimeOffset EndTime);
+    public class ScheduleSessionInput
+    {
+        [ID]
+        public int SessionId { get; set; }
+
+        [ID]
+        public int TrackId { get; set; }
+
+        public DateTimeOffset StartTime { get; set; }
+
+        public DateTimeOffset EndTime { get; set; }
+    }
 }
