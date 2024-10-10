@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using TodoApp.Console;
+using TodoApp.Console.Data;
 
 var services = new ServiceCollection();
+services.AddScoped<DataContext>();
 
 // create service provider
 var serviceProvider = services.BuildServiceProvider();
