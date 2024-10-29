@@ -10,7 +10,4 @@ var serviceProvider = services.BuildServiceProvider();
 
 // start App
 var app = ActivatorUtilities.CreateInstance<App>(serviceProvider);
-if (app is not null)
-{
-    await app.RunAsync(args);
-}
+await app.RunAsync(args);
