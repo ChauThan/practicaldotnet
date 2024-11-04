@@ -1,11 +1,11 @@
 namespace Proj.Types;
 
-public class Query { }
-
-public class QueryType : ObjectType<Query>
+public class QueryType : ObjectType
 {
-    protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
+    protected override void Configure(IObjectTypeDescriptor descriptor)
     {
+        descriptor.Name(OperationTypeNames.Query);
+        
         descriptor.Field("authors")
             .Type<ListType<AuthorType>>()
             .Resolve(ctx =>

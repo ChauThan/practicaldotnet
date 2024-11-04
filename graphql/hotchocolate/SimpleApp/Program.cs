@@ -7,7 +7,9 @@ builder.Services.AddSingleton<DbContext>();
 
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<QueryType>();
+    .AddQueryType<QueryType>()
+    .AddMutationType<MutationType>()
+    .AddMutationConventions();
 
 var app = builder.Build();
 

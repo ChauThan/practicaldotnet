@@ -9,4 +9,9 @@ type Query {
   books: [Book] @cost(weight: "10")
   book(id: Int!): Book @cost(weight: "10")
 }
+
+type Mutation {
+  addAuthor(input: AddAuthorInput): AddAuthorPayload! @cost(weight: "10")
+  addBook(input: AddBookInput): AddBookPayload! @cost(weight: "10")
+}
 ```
