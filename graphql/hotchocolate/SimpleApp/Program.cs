@@ -7,10 +7,16 @@ builder.Services.AddSingleton<DbContext>();
 
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<QueryType>();
+    .AddInMemorySubscriptions()
+    .AddQueryType<QueryType>()
+    .AddMutationType<MutationType>()
+    .AddMutationConventions()
+    .AddSubscriptionType<SubscriptionType>();
 
 var app = builder.Build();
 
+app.UseWebSockets();
 app.MapGraphQL();
+
 
 app.Run();
