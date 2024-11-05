@@ -1,3 +1,5 @@
+using HotChocolate.Subscriptions;
+
 namespace Proj.Types;
 
 public class MutationType : ObjectType
@@ -10,7 +12,7 @@ public class MutationType : ObjectType
             .Type<AuthorType>()
             .Argument("input", s =>
                 s.Type<InputObjectType<AddAuthor>>())
-            .Resolve(ctx =>
+            .Resolve(async ctx =>
             {
                 var dbContext = ctx.Services.GetRequiredService<DbContext>();
                 
@@ -19,7 +21,11 @@ public class MutationType : ObjectType
                 
                 dbContext.AddAuthor(author);
 
-                return new Author(author.Id, author.Name, []);
+                var result = new Author(author.Id, author.Name, []); 
+                var sender = ctx.Service<ITopicEventSender>();
+                await sender.SendAsync("authorAdded", result);
+
+                return result;
             });
 
         descriptor.Field("addBook")
