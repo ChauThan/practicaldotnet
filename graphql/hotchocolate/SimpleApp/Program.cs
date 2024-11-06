@@ -10,7 +10,7 @@ builder.Services
     .AddInMemorySubscriptions()
     .AddQueryType<QueryType>()
     .AddMutationType<MutationType>()
-    .AddMutationConventions()
+        .AddMutationConventions()
     .AddSubscriptionType<SubscriptionType>();
 
 var app = builder.Build();
