@@ -15,6 +15,6 @@ public class QueryType : ObjectType
         descriptor.Field("author")
             .Argument("id", a => a.Type<NonNullType<IntType>>())
             .Type<AuthorType>()
-            .Resolve<AuthorResolver>();
+            .Resolve(typeof(AuthorResolver));
     }
 }
