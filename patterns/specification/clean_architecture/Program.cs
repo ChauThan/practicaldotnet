@@ -11,5 +11,6 @@ var app = builder.Build();
 app.UseInfrastructure();
 
 app.MapGet("/products", (GetProductsHandler handler) => handler.GetProducts());
+app.MapGet("/product-in-cat-a", (GetProductsHandler handler) => handler.GetProductsByCategory("Cat A"));
 
 app.Run();
