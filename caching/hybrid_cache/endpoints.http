@@ -1,0 +1,23 @@
+﻿@id = 1
+@id2 = 2
+
+### first load, time > 500ms
+GET {{host}}/{{id}}/hybrid/
+
+### second load, it should get from cache.
+GET {{host}}/{{id}}/hybrid/
+
+### Remove 
+POST {{host}}/{{id}}/hybrid/remove
+
+### Set again
+POST {{host}}/{{id}}/hybrid/set
+
+### Get again, it should get from cache
+GET {{host}}/{{id}}/hybrid/
+
+### Use distributed cache
+GET {{host}}/{{id2}}/hybrid/distributed-cache
+
+### Use distributed cache
+GET {{host}}/{{id2}}/l2
