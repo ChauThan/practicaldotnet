@@ -10,3 +10,5 @@ output: PizzaStore-02
 
 
 - Create a full stack application by using React and minimal API for ASP.NET Core
+input: https://learn.microsoft.com/en-us/training/modules/build-web-api-minimal-spa/
+output: PizzaStore-03
