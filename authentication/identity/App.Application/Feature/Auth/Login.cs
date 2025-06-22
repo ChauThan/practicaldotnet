@@ -16,7 +16,7 @@ public static class Login
     {
         public bool Succeeded { get; set; }
         public string? Message { get; set; }
-        public string? UserId { get; set; }
+        public Guid? UserId { get; set; }
         public string? UserName { get; set; }
         public string? Token { get; set; }
     }

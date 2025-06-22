@@ -15,14 +15,14 @@ public static class AssignRoleToUser
     {
         public bool Succeeded { get; set; }
         public IEnumerable<string>? Errors { get; set; }
-        public string? UserId { get; set; }
+        public Guid? UserId { get; set; }
         public string? UserName { get; set; }
         public string? RoleName { get; set; }
     }
 
     public class Handler(
         UserManager<ApplicationUser> userManager, 
-        RoleManager<IdentityRole> roleManager) 
+        RoleManager<ApplicationRole> roleManager) 
         : IRequestHandler<Command, Response>
     {
         public async Task<Response> Handle(Command request, CancellationToken cancellationToken)

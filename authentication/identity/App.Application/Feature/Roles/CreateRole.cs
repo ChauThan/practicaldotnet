@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using App.Domain;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 
 namespace App.Application.Feature.Roles;
@@ -14,11 +15,11 @@ public static class CreateRole
     {
         public bool Succeeded { get; set; }
         public IEnumerable<string>? Errors { get; set; }
-        public string? RoleId { get; set; }
+        public Guid? RoleId { get; set; }
         public string? RoleName { get; set; }
     }
 
-    public class Handler(RoleManager<IdentityRole> roleManager) 
+    public class Handler(RoleManager<ApplicationRole> roleManager) 
         : IRequestHandler<Command, Response>
     {
         public async Task<Response> Handle(Command request, CancellationToken cancellationToken)
@@ -29,7 +30,7 @@ public static class CreateRole
                 return new Response { Succeeded = false, Errors = [$"Role '{request.RoleName}' already exists."] };
             }
 
-            var role = new IdentityRole(request.RoleName);
+            var role = new ApplicationRole(request.RoleName);
             var result = await roleManager.CreateAsync(role);
 
             if (result.Succeeded)
