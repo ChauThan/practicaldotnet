@@ -10,6 +10,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddIdentityServerConfig();
 
+// Add health checks
+builder.Services.AddHealthChecks();
+
 // Configure authentication and authorization
 var authorityUrl = builder.Configuration["Jwt:Authority"] ?? "https://localhost:7001";
 
@@ -52,6 +55,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Map health check endpoint
+app.MapHealthChecks("/health");
 
 app.UseHttpsRedirection();
 
