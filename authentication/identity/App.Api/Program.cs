@@ -1,5 +1,6 @@
 ﻿using App.Application.ServiceExtensions;
 using App.Infrastructure.ServiceExtensions;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
 builder.Services.AddApplicationServices();
+
+builder.Services.AddControllers();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -22,6 +28,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
