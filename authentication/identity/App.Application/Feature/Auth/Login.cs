@@ -1,6 +1,11 @@
 ﻿using App.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace App.Application.Feature.Auth;
 
@@ -25,7 +30,8 @@ public static class Login
     // JWT token generation can be added later when authentication logic is extended.
     public class Handler(
         UserManager<ApplicationUser> userManager, 
-        SignInManager<ApplicationUser> signInManager /*, IJwtService jwtService */) 
+        SignInManager<ApplicationUser> signInManager,
+        IConfiguration configuration /*, IJwtService jwtService */)
         : IRequestHandler<Query, Response>
     {
         public async Task<Response> Handle(Query request, CancellationToken cancellationToken)
@@ -40,7 +46,26 @@ public static class Login
 
             if (result.Succeeded)
             {
-                
+                var claims = new List<Claim>
+                    {
+                        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+                        new Claim(ClaimTypes.Name, user.UserName!)
+                    };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]!));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var expires = DateTime.Now.AddDays(Convert.ToDouble(configuration["JwtSettings:ExpireDays"] ?? "7"));
+
+                var token = new JwtSecurityToken(
+                    issuer: configuration["JwtSettings:Issuer"],
+                    audience: configuration["JwtSettings:Audience"],
+                    claims: claims,
+                    expires: expires,
+                    signingCredentials: creds
+                );
+
                 // var token = _jwtService.GenerateToken(user);
                 return new Response
                 {
@@ -48,7 +73,7 @@ public static class Login
                     Message = "Login successful.",
                     UserId = user.Id,
                     UserName = user.UserName,
-                    Token = "YOUR_JWT_TOKEN_HERE"
+                    Token = new JwtSecurityTokenHandler().WriteToken(token)
                 };
             }
             else if (result.IsLockedOut)

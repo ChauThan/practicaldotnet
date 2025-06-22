@@ -1,5 +1,6 @@
 ﻿using App.Application.Feature.Roles;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace App.Api.Controllers;
@@ -10,6 +11,7 @@ namespace App.Api.Controllers;
 public class RolesController(IMediator mediator) : ControllerBase
 {
     [HttpPost("create")]
+    [Authorize]
     public async Task<IActionResult> CreateRole([FromBody] CreateRole.Command command)
     {
         var response = await mediator.Send(command);
@@ -21,6 +23,7 @@ public class RolesController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("assign-to-user")]
+    [Authorize]
     public async Task<IActionResult> AssignRoleToUser([FromBody] AssignRoleToUser.Command command)
     {
         var response = await mediator.Send(command);
