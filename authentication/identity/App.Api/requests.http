@@ -1,0 +1,43 @@
+### Register a new user
+POST https://localhost:7001/api/Auth/register
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!",
+  "firstName": "Test",
+  "lastName": "User"
+}
+
+###
+### Login an existing user
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+
+###
+### Create a new Role (e.g., Admin)
+POST https://localhost:7001/api/Roles/create
+Content-Type: application/json
+
+{
+  "roleName": "Admin"
+}
+
+###
+### Assign a Role to a User
+# IMPORTANT: You'll need to manually get the UserId from the Register or Login response
+# and replace the GUID below with the actual UserId.
+POST https://localhost:7001/api/Roles/assign-to-user
+Content-Type: application/json
+
+{
+  "userId": "REPLACE_WITH_ACTUAL_USER_GUID_FROM_REGISTER_OR_LOGIN_RESPONSE",
+  "roleName": "Admin"
+}
+
+###
