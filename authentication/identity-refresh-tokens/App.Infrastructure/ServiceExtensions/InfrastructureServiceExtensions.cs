@@ -1,5 +1,7 @@
 ﻿using App.Domain;
 using App.Infrastructure.Persistence;
+using App.Application.Repositories;
+using App.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,8 @@ public static class InfrastructureServiceExtensions
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
+
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         return services;
     }
