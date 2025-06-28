@@ -38,4 +38,27 @@ public class RefreshTokenRepository : IRefreshTokenRepository
             .Where(rt => rt.UserId == userId && rt.ExpiryDate > DateTime.UtcNow)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task RevokeAllTokensForUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var tokens = await dbContext.Set<RefreshToken>()
+            .Where(rt => rt.UserId == userId && rt.RevokedDate == null && rt.ExpiryDate > DateTime.UtcNow)
+            .ToListAsync(cancellationToken);
+        foreach (var token in tokens)
+        {
+            token.RevokedDate = DateTime.UtcNow;
+        }
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RevokeTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    {
+        var token = await dbContext.Set<RefreshToken>()
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.RevokedDate == null && rt.ExpiryDate > DateTime.UtcNow, cancellationToken);
+        if (token != null)
+        {
+            token.RevokedDate = DateTime.UtcNow;
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
 }
