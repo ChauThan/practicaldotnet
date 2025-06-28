@@ -3,7 +3,6 @@ using App.Application.Services;
 using App.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 
 namespace App.Application.Feature.Auth;
 
@@ -12,7 +11,7 @@ public static class RefreshToken
     public class Command : IRequest<Response>
     {
         public string RefreshToken { get; set; } = string.Empty;
-        public string? AccessToken { get; set; } // Optional: for extra validation
+        public string AccessToken { get; set; } = string.Empty;
     }
 
     public class Response
@@ -44,6 +43,21 @@ public static class RefreshToken
             if (user == null)
             {
                 return new Response { Succeeded = false, Message = "User not found." };
+            }
+
+            // Validate AccessToken using JwtService
+            try
+            {
+                var principal = jwtService.ValidateToken(request.AccessToken);
+                var (sub, jti) = jwtService.ExtractSubAndJti(principal);
+                if (sub != user.Id.ToString() || jti != storedToken.JwtId)
+                {
+                    return new Response { Succeeded = false, Message = "Access token does not match refresh token." };
+                }
+            }
+            catch
+            {
+                return new Response { Succeeded = false, Message = "Invalid access token format." };
             }
 
             // Revoke the old refresh token

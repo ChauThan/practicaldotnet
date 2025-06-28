@@ -62,4 +62,48 @@ public class JwtService(IConfiguration configuration, UserManager<ApplicationUse
             Token = Guid.NewGuid().ToString() + Guid.NewGuid().ToString()
         };
     }
+
+    public ClaimsPrincipal ValidateToken(string accessToken)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = _configuration["JwtSettings:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = _configuration["JwtSettings:Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = key,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+
+        try
+        {
+            var principal = handler.ValidateToken(accessToken, validationParameters, out var validatedToken);
+            return principal;
+        }
+        catch (Exception ex)
+        {
+            throw new SecurityTokenException("Invalid access token.", ex);
+        }
+    }
+
+    public (string Sub, string Jti) ExtractSubAndJti(ClaimsPrincipal principal)
+    {
+        var sub = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+        var jti = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+        if (string.IsNullOrEmpty(sub) || string.IsNullOrEmpty(jti))
+        {
+            throw new SecurityTokenException("Access token missing required claims.");
+        }
+        return (sub, jti);
+    }
+
+    public (string Sub, string Jti) ValidateAndExtractClaims(string accessToken)
+    {
+        var principal = ValidateToken(accessToken);
+        return ExtractSubAndJti(principal);
+    }
 }
