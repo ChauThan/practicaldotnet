@@ -30,4 +30,15 @@ public class AuthController(IMediator mediator)
         }
         return Unauthorized(response);
     }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshToken.Command command)
+    {
+        var response = await mediator.Send(command);
+        if (response.Succeeded)
+        {
+            return Ok(response);
+        }
+        return Unauthorized(response);
+    }
 }

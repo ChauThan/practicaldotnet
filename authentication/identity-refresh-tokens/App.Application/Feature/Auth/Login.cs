@@ -1,13 +1,9 @@
 ﻿using App.Application.Repositories;
+using App.Application.Services;
 using App.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace App.Application.Feature.Auth;
 
@@ -31,13 +27,11 @@ public static class Login
         public string RefreshToken { get; set; } = string.Empty;
     }
 
-    // The IJwtService dependency is commented out below because we want to focus on the basic identity functionality.
-    // JWT token generation can be added later when authentication logic is extended.
     public class Handler(
         UserManager<ApplicationUser> userManager, 
         SignInManager<ApplicationUser> signInManager,
-        IConfiguration configuration,
-        IRefreshTokenRepository refreshTokenRepository)
+        IRefreshTokenRepository refreshTokenRepository,
+        IJwtService jwtService)
         : IRequestHandler<Query, Response>
     {
         public async Task<Response> Handle(Query request, CancellationToken cancellationToken)
@@ -52,8 +46,8 @@ public static class Login
 
             if (result.Succeeded)
             {
-                var (accessToken, expiration, jwtId) = GenerateJwtToken(user); // Cần jwtId để liên kết với Refresh Token
-                var refreshToken = GenerateRefreshToken(user, jwtId);
+                var (accessToken, expiration, jwtId) = jwtService.GenerateJwtToken(user);
+                var refreshToken = jwtService.GenerateRefreshToken(user, jwtId);
 
                 await refreshTokenRepository.AddAsync(refreshToken, CancellationToken.None);
 
@@ -80,56 +74,6 @@ public static class Login
             {
                 return new Response { Succeeded = false, Message = "Invalid credentials." };
             }
-        }
-
-        private (string AccessToken, DateTime Expiration, string JwtId) GenerateJwtToken(ApplicationUser user)
-        {
-            var claims = new List<Claim>
-            {
-                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(JwtRegisteredClaimNames.Email, user.Email!),
-                new(ClaimTypes.Name, user.UserName!)
-            };
-
-            var roles = userManager.GetRolesAsync(user).Result;
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var accessTokenLifeTimeMinutes = Convert.ToDouble(configuration["JwtSettings:AccessTokenLifeTimeMinutes"] ?? "1");
-            var expiration = DateTime.UtcNow.AddMinutes(accessTokenLifeTimeMinutes);
-
-            var token = new JwtSecurityToken(
-                issuer: configuration["JwtSettings:Issuer"],
-                audience: configuration["JwtSettings:Audience"],
-                claims: claims,
-                expires: expiration,
-                signingCredentials: creds
-            );
-
-            var jwtId = token.Id;
-
-            return (new JwtSecurityTokenHandler().WriteToken(token), expiration, jwtId);
-        }
-
-        private RefreshToken GenerateRefreshToken(ApplicationUser user, string jwtId)
-        {
-            var refreshTokenLifeTimeDays = Convert.ToDouble(configuration["JwtSettings:RefreshTokenLifeTimeDays"] ?? "3");
-
-            return new RefreshToken
-            {
-                Id = Guid.NewGuid(),
-                JwtId = jwtId,
-                UserId = user.Id,
-                CreationDate = DateTime.UtcNow,
-                ExpiryDate = DateTime.UtcNow.AddDays(refreshTokenLifeTimeDays),
-                Token = Guid.NewGuid().ToString() + Guid.NewGuid().ToString()
-            };
         }
     }
 }
