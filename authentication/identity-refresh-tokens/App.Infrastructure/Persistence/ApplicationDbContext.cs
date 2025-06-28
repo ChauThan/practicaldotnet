@@ -24,6 +24,33 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<Product>().ToTable("Products", SchemaName.Sales);
         builder.Entity<Product>().Property(p => p.Price).HasPrecision(18, 2);
+
+        builder.Entity<RefreshToken>(entity =>
+        {
+            entity.ToTable("RefreshTokens", SchemaName.Identity);
+
+            entity.HasKey(rt => rt.Id);
+
+            entity.Property(rt => rt.Token)
+                  .IsRequired()
+                  .HasMaxLength(256);
+            entity.Property(rt => rt.JwtId)
+                  .IsRequired()
+                  .HasMaxLength(256);
+
+            entity.Property(rt => rt.CreationDate)
+                  .IsRequired();
+
+            entity.Property(rt => rt.ExpiryDate)
+                  .IsRequired();
+
+            entity.HasOne(rt => rt.User)
+                  .WithMany(u => u.RefreshTokens)
+                  .HasForeignKey(rt => rt.UserId)
+                  .IsRequired()
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
     }
 
     private static class SchemaName
