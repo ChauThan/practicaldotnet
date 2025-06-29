@@ -3,11 +3,14 @@ using App.Infrastructure.ServiceExtensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Scalar.AspNetCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 // Add services to the container.
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -61,3 +64,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Make Program public and partial for integration testing
+public partial class Program { }
