@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Build and run App.Api",
+			"command": "dotnet build && dotnet run --project App.Api/App.Api.csproj",
+			"group": "build",
+			"isBackground": false
+		}
+	]
+}
