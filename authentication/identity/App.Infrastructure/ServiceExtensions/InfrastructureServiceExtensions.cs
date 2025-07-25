@@ -40,4 +40,16 @@ public static class InfrastructureServiceExtensions
 
         return services;
     }
+
+    public static async Task InitializeDatabaseAsync(this IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        // Ensure database is created and migrations are applied
+        await context.Database.MigrateAsync();
+
+        // Seed initial data
+        await SeedService.SeedAsync(serviceProvider);
+    }
 }

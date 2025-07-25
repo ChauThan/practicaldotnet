@@ -178,6 +178,24 @@ App.Domain
 4. **Start the application**: `dotnet run --project App.Api`
 5. **Access API documentation** at `/scalar/v1`
 
+## Seed Data
+
+The application automatically creates seed data on startup:
+
+### Default Admin User
+- **Email:** `admin@app.com`
+- **Password:** `Admin123!`
+- **Role:** Admin
+
+### Default Roles
+- Admin
+- User  
+- Manager
+
+📖 **For detailed information about seed data, see [SEED_DATA.md](SEED_DATA.md)**
+
+⚠️ **Security:** Change the default admin password in production environments!
+
 ---
 
 This implementation follows Clean Architecture principles ensuring maintainable, testable, and loosely coupled code.

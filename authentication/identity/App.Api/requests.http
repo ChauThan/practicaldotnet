@@ -10,6 +10,16 @@ Content-Type: application/json
 }
 
 ###
+### Login with the seeded admin user
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@app.com",
+  "password": "Admin123!"
+}
+
+###
 ### Login an existing user and get JWT Token
 POST https://localhost:7001/api/Auth/login
 Content-Type: application/json
@@ -29,6 +39,17 @@ Content-Type: application/json
 }
 
 ###
+### Create a new Role using Admin user WITH Authorization
+# IMPORTANT: You will need to manually copy the token from the Admin login response and paste it here
+POST https://localhost:7001/api/Roles/create
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_JWT_TOKEN_HERE
+
+{
+  "roleName": "TestRole"
+}
+
+###
 ### Create a new Role (e.g., AuthorizedAdmin) WITH Authorization
 # IMPORTANT: You will need to manually copy the token from the Login response and paste it here
 POST https://localhost:7001/api/Roles/create
@@ -37,6 +58,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNDg2ZDc3Y
 
 {
   "roleName": "AuthorizedAdmin"
+}
+
+###
+### Assign a Role to a User using Admin WITH Authorization
+# IMPORTANT: You will need to manually copy the UserId from the Register response and the admin token from Login
+POST https://localhost:7001/api/Roles/assign-to-user
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_JWT_TOKEN_HERE
+
+{
+  "userId": "USER_ID_HERE",
+  "roleName": "User"
 }
 
 ###
