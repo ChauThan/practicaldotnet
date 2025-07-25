@@ -1,6 +1,6 @@
 ﻿using App.Domain;
+using App.Application.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace App.Application.Feature.Auth;
 
@@ -22,7 +22,7 @@ public static class Register
         public string? UserName { get; set; }
     }
 
-    public class Handler(UserManager<ApplicationUser> userManager) 
+    public class Handler(IUserService userService)
         : IRequestHandler<Command, Response>
     {
         public async Task<Response> Handle(Command request, CancellationToken cancellationToken)
@@ -36,14 +36,14 @@ public static class Register
                 DateCreated = DateTime.UtcNow
             };
 
-            var result = await userManager.CreateAsync(user, request.Password);
+            var (succeeded, errors, userId) = await userService.CreateUserAsync(user, request.Password);
 
-            if (result.Succeeded)
+            if (succeeded)
             {
                 return new Response
                 {
                     Succeeded = true,
-                    UserId = user.Id,
+                    UserId = userId,
                     UserName = user.UserName
                 };
             }
@@ -51,7 +51,7 @@ public static class Register
             return new Response
             {
                 Succeeded = false,
-                Errors = result.Errors.Select(e => e.Description)
+                Errors = errors
             };
         }
     }

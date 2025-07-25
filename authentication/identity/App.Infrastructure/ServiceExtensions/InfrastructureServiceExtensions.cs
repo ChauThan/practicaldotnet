@@ -1,5 +1,7 @@
-﻿using App.Domain;
+﻿using App.Application.Abstractions;
+using App.Domain;
 using App.Infrastructure.Persistence;
+using App.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,12 @@ public static class InfrastructureServiceExtensions
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
+
+        // Register application services
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ISignInService, SignInService>();
+        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IRoleService, RoleService>();
 
         return services;
     }
