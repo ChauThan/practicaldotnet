@@ -1,8 +1,8 @@
-﻿using App.Domain;
+﻿using App.Application.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace App.Application.Feature.Roles;
+
 public static class AssignRoleToUser
 {
     public class Command : IRequest<Response>
@@ -20,28 +20,26 @@ public static class AssignRoleToUser
         public string? RoleName { get; set; }
     }
 
-    public class Handler(
-        UserManager<ApplicationUser> userManager, 
-        RoleManager<ApplicationRole> roleManager) 
+    public class Handler(IRoleService roleService)
         : IRequestHandler<Command, Response>
     {
         public async Task<Response> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await userManager.FindByIdAsync(request.UserId);
+            var user = await roleService.FindUserByIdAsync(request.UserId);
             if (user == null)
             {
                 return new Response { Succeeded = false, Errors = [$"User with ID '{request.UserId}' not found."] };
             }
 
-            var roleExists = await roleManager.RoleExistsAsync(request.RoleName);
+            var roleExists = await roleService.RoleExistsAsync(request.RoleName);
             if (!roleExists)
             {
                 return new Response { Succeeded = false, Errors = [$"Role '{request.RoleName}' does not exist."] };
             }
 
-            var result = await userManager.AddToRoleAsync(user, request.RoleName);
+            var (succeeded, errors) = await roleService.AddUserToRoleAsync(user, request.RoleName);
 
-            if (result.Succeeded)
+            if (succeeded)
             {
                 return new Response
                 {
@@ -55,7 +53,7 @@ public static class AssignRoleToUser
             return new Response
             {
                 Succeeded = false,
-                Errors = result.Errors.Select(e => e.Description)
+                Errors = errors
             };
         }
     }
