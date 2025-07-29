@@ -1,0 +1,87 @@
+### Register a new user
+POST https://localhost:7001/api/Auth/register
+Content-Type: application/json
+
+{
+  "email": "jwt_testuser@example.com",
+  "password": "Password123!",
+  "firstName": "JWT",
+  "lastName": "User"
+}
+
+###
+### Login with the seeded admin user
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@app.com",
+  "password": "Admin123!"
+}
+
+###
+### Login an existing user and get JWT Token
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "jwt_testuser@example.com",
+  "password": "Password123!"
+}
+
+###
+### Attempt to Create a Role WITHOUT Authorization (expected 401 Unauthorized)
+POST https://localhost:7001/api/Roles/create
+Content-Type: application/json
+
+{
+  "roleName": "UnauthorizedRole"
+}
+
+###
+### Create a new Role using Admin user WITH Authorization
+# IMPORTANT: You will need to manually copy the token from the Admin login response and paste it here
+POST https://localhost:7001/api/Roles/create
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_JWT_TOKEN_HERE
+
+{
+  "roleName": "TestRole"
+}
+
+###
+### Create a new Role (e.g., AuthorizedAdmin) WITH Authorization
+# IMPORTANT: You will need to manually copy the token from the Login response and paste it here
+POST https://localhost:7001/api/Roles/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNDg2ZDc3Yi0zYjk4LTQ3MDItMDBmNS0wOGRkYjE5ZWYzMzAiLCJqdGkiOiJmMDgxMzQ3ZS1hZjcxLTQzNDEtOTUxYi0wYTA4YzFiOTBjYjMiLCJlbWFpbCI6Imp3dF90ZXN0dXNlckBleGFtcGxlLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqd3RfdGVzdHVzZXJAZXhhbXBsZS5jb20iLCJleHAiOjE3NTEyMDk5MDUsImlzcyI6IkFwcEFwaSIsImF1ZCI6IkFwcEFwaUNsaWVudHMifQ.NTOWhfhF4fcNsmBY2NDW0jKvR0oSgZ7Jf9BmTi3ffKQ
+
+{
+  "roleName": "AuthorizedAdmin"
+}
+
+###
+### Assign a Role to a User using Admin WITH Authorization
+# IMPORTANT: You will need to manually copy the UserId from the Register response and the admin token from Login
+POST https://localhost:7001/api/Roles/assign-to-user
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_JWT_TOKEN_HERE
+
+{
+  "userId": "USER_ID_HERE",
+  "roleName": "User"
+}
+
+###
+### Assign a Role to a User WITH Authorization
+# IMPORTANT: You will need to manually copy the UserId from the Register response and the token from Login
+POST https://localhost:7001/api/Roles/assign-to-user
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNDg2ZDc3Yi0zYjk4LTQ3MDItMDBmNS0wOGRkYjE5ZWYzMzAiLCJqdGkiOiJmMDgxMzQ3ZS1hZjcxLTQzNDEtOTUxYi0wYTA4YzFiOTBjYjMiLCJlbWFpbCI6Imp3dF90ZXN0dXNlckBleGFtcGxlLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqd3RfdGVzdHVzZXJAZXhhbXBsZS5jb20iLCJleHAiOjE3NTEyMDk5MDUsImlzcyI6IkFwcEFwaSIsImF1ZCI6IkFwcEFwaUNsaWVudHMifQ.NTOWhfhF4fcNsmBY2NDW0jKvR0oSgZ7Jf9BmTi3ffKQ
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330",
+  "roleName": "AuthorizedAdmin"
+}
+
+###
