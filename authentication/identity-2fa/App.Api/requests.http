@@ -1,0 +1,174 @@
+### Register a new user
+POST https://localhost:7001/api/Auth/register
+Content-Type: application/json
+
+{
+  "email": "jwt_testuser@example.com",
+  "password": "Password123!",
+  "firstName": "JWT",
+  "lastName": "User"
+}
+
+###
+### Login with the seeded admin user (should succeed without 2FA)
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@app.com",
+  "password": "Admin123!"
+}
+
+###
+### Login an existing user (before 2FA is enabled - should succeed with token)
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "jwt_testuser@example.com",
+  "password": "Password123!"
+}
+
+###
+### Enable 2FA for a user (Step 1: Get QR code and secret key)
+POST https://localhost:7001/api/Auth/2fa/enable
+Content-Type: application/json
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330"
+}
+
+###
+### Verify 2FA setup (Step 2: Complete setup with authenticator app code)
+# IMPORTANT: Use the secret key from previous response to set up your authenticator app
+# Then provide the 6-digit code from your authenticator app
+POST https://localhost:7001/api/Auth/2fa/verify
+Content-Type: application/json
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330",
+  "code": "123456"
+}
+
+###
+### Login user with 2FA enabled (should return RequiresTwoFactor=true)
+# After 2FA is enabled, this should NOT return a token
+# Instead it should return requiresTwoFactor: true
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "jwt_testuser@example.com",
+  "password": "Password123!"
+}
+
+###
+### Complete 2FA Login (use this after login returns RequiresTwoFactor=true)
+# IMPORTANT: You will need to use the UserId from the previous login response
+# and provide the 6-digit code from your authenticator app
+POST https://localhost:7001/api/Auth/login-2fa
+Content-Type: application/json
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330",
+  "code": "123456",
+  "rememberMe": false,
+  "rememberClient": false
+}
+
+###
+### Attempt to Create a Role WITHOUT Authorization (expected 401 Unauthorized)
+POST https://localhost:7001/api/Roles/create
+Content-Type: application/json
+
+{
+  "roleName": "UnauthorizedRole"
+}
+
+###
+### Create a new Role using Admin user WITH Authorization
+# IMPORTANT: You will need to manually copy the token from the Admin login response and paste it here
+POST https://localhost:7001/api/Roles/create
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_JWT_TOKEN_HERE
+
+{
+  "roleName": "TestRole"
+}
+
+###
+### Create a new Role (e.g., AuthorizedAdmin) WITH Authorization
+# IMPORTANT: You will need to manually copy the token from the Login response and paste it here
+POST https://localhost:7001/api/Roles/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNDg2ZDc3Yi0zYjk4LTQ3MDItMDBmNS0wOGRkYjE5ZWYzMzAiLCJqdGkiOiJmMDgxMzQ3ZS1hZjcxLTQzNDEtOTUxYi0wYTA4YzFiOTBjYjMiLCJlbWFpbCI6Imp3dF90ZXN0dXNlckBleGFtcGxlLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqd3RfdGVzdHVzZXJAZXhhbXBsZS5jb20iLCJleHAiOjE3NTEyMDk5MDUsImlzcyI6IkFwcEFwaSIsImF1ZCI6IkFwcEFwaUNsaWVudHMifQ.NTOWhfhF4fcNsmBY2NDW0jKvR0oSgZ7Jf9BmTi3ffKQ
+
+{
+  "roleName": "AuthorizedAdmin"
+}
+
+###
+### Assign a Role to a User using Admin WITH Authorization
+# IMPORTANT: You will need to manually copy the UserId from the Register response and the admin token from Login
+POST https://localhost:7001/api/Roles/assign-to-user
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_JWT_TOKEN_HERE
+
+{
+  "userId": "USER_ID_HERE",
+  "roleName": "User"
+}
+
+###
+### Assign a Role to a User WITH Authorization
+# IMPORTANT: You will need to manually copy the UserId from the Register response and the token from Login
+POST https://localhost:7001/api/Roles/assign-to-user
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNDg2ZDc3Yi0zYjk4LTQ3MDItMDBmNS0wOGRkYjE5ZWYzMzAiLCJqdGkiOiJmMDgxMzQ3ZS1hZjcxLTQzNDEtOTUxYi0wYTA4YzFiOTBjYjMiLCJlbWFpbCI6Imp3dF90ZXN0dXNlckBleGFtcGxlLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqd3RfdGVzdHVzZXJAZXhhbXBsZS5jb20iLCJleHAiOjE3NTEyMDk5MDUsImlzcyI6IkFwcEFwaSIsImF1ZCI6IkFwcEFwaUNsaWVudHMifQ.NTOWhfhF4fcNsmBY2NDW0jKvR0oSgZ7Jf9BmTi3ffKQ
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330",
+  "roleName": "AuthorizedAdmin"
+}
+
+###
+### Enable 2FA for a user
+# Step 1: Enable 2FA and get the QR code/key
+POST https://localhost:7001/api/Auth/2fa/enable
+Content-Type: application/json
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330"
+}
+
+###
+### Verify 2FA setup
+# Step 2: After setting up your authenticator app with the key from step 1,
+# verify the 6-digit code to complete 2FA setup
+POST https://localhost:7001/api/Auth/2fa/verify
+Content-Type: application/json
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330",
+  "code": "123456"
+}
+
+###
+### Generate recovery codes (only after 2FA is enabled)
+POST https://localhost:7001/api/Auth/2fa/recovery-codes
+Content-Type: application/json
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330"
+}
+
+###
+### Disable 2FA for a user
+POST https://localhost:7001/api/Auth/2fa/disable
+Content-Type: application/json
+
+{
+  "userId": "c486d77b-3b98-4702-00f5-08ddb19ef330"
+}
+
+###
