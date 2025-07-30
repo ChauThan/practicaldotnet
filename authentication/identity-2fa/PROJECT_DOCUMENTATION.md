@@ -2,6 +2,8 @@
 
 All content previously in README.md has been moved here for better organization and clarity.
 
+> 🔐 **For Two-Factor Authentication (2FA) information, implementation details, and testing guide, see [README.md](README.md)**
+
 ---
 
 # Authentication & Identity - Clean Architecture
@@ -29,10 +31,11 @@ This project demonstrates a clean architecture implementation for authentication
 │  │  │   Auth    │  │  │  - IRoleService │  │                 │  │
 │  │  │ - Login   │  │  │  - IJwtService  │  │                 │  │
 │  │  │ - Register│  │  │  - ISignInService│ │                 │  │
-│  │  └───────────┘  │  └─────────────────┘  └─────────────────┘  │
-│  │  ┌───────────┐  │                                           │
-│  │  │   Roles   │  │        Uses MediatR Pattern               │
-│  │  │ - Create  │  │        CQRS Implementation                │
+│  │  │ - 2FA     │  │  └─────────────────┘  └─────────────────┘  │
+│  │  └───────────┘  │                                           │
+│  │  ┌───────────┐  │        Uses MediatR Pattern               │
+│  │  │   Roles   │  │        CQRS Implementation                │
+│  │  │ - Create  │  │        📖 2FA Details in README.md        │
 │  │  │ - Assign  │  │                                           │
 │  │  └───────────┘  │                                           │
 │  └─────────────────┘                                           │
@@ -133,7 +136,12 @@ App.Domain
 ├── Feature/              # CQRS commands/queries
 │   ├── Auth/
 │   │   ├── Login.cs
-│   │   └── Register.cs
+│   │   ├── LoginWith2FA.cs
+│   │   ├── Register.cs
+│   │   ├── EnableTwoFactor.cs
+│   │   ├── VerifyTwoFactorSetup.cs
+│   │   ├── DisableTwoFactor.cs
+│   │   └── GenerateRecoveryCodes.cs
 │   └── Roles/
 │       ├── AssignRoleToUser.cs
 │       └── CreateRole.cs
@@ -171,6 +179,9 @@ App.Domain
 ### Authentication
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
+
+### Two-Factor Authentication
+🔐 **Complete 2FA endpoint documentation and testing guide available in [README.md](README.md)**
 
 ### Roles Management
 - `POST /api/roles` - Create role

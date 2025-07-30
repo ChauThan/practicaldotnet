@@ -1,16 +1,18 @@
-﻿using App.Domain;
+using App.Domain;
 using App.Application.Abstractions;
 using MediatR;
 using System.Security.Claims;
 
 namespace App.Application.Feature.Auth;
 
-public static class Login
+public static class LoginWith2FA
 {
-    public class Query : IRequest<Response>
+    public class Command : IRequest<Response>
     {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public Guid UserId { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public bool RememberMe { get; set; } = false;
+        public bool RememberClient { get; set; } = false;
     }
 
     public class Response
@@ -20,25 +22,30 @@ public static class Login
         public Guid? UserId { get; set; }
         public string? UserName { get; set; }
         public string? Token { get; set; }
-        public bool RequiresTwoFactor { get; set; }
     }
 
-    // The IJwtService dependency is now properly defined and will be implemented in Infrastructure
     public class Handler(
         IUserService userService,
         ISignInService signInService,
         IJwtService jwtService)
-        : IRequestHandler<Query, Response>
+        : IRequestHandler<Command, Response>
     {
-        public async Task<Response> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Response> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await userService.FindByEmailAsync(request.Email);
+            var user = await userService.FindByIdAsync(request.UserId);
             if (user == null)
             {
-                return new Response { Succeeded = false, Message = "Invalid credentials." };
+                return new Response { Succeeded = false, Message = "User not found." };
             }
 
-            var result = await signInService.PasswordSignInAsync(user.UserName!, request.Password, false);
+            // Check if user has 2FA enabled
+            var is2FAEnabled = await userService.GetTwoFactorEnabledAsync(user);
+            if (!is2FAEnabled)
+            {
+                return new Response { Succeeded = false, Message = "Two-factor authentication is not enabled for this user." };
+            }
+
+            var result = await signInService.TwoFactorAuthenticatorSignInAsync(user, request.Code, request.RememberMe, request.RememberClient);
 
             if (result.Succeeded)
             {
@@ -61,17 +68,6 @@ public static class Login
                     Token = token
                 };
             }
-            else if (result.RequiresTwoFactor)
-            {
-                return new Response
-                {
-                    Succeeded = false,
-                    Message = "Two-factor authentication required.",
-                    UserId = user.Id,
-                    UserName = user.UserName,
-                    RequiresTwoFactor = true
-                };
-            }
             else if (result.IsLockedOut)
             {
                 return new Response { Succeeded = false, Message = "User account locked out." };
@@ -82,7 +78,7 @@ public static class Login
             }
             else
             {
-                return new Response { Succeeded = false, Message = "Invalid credentials." };
+                return new Response { Succeeded = false, Message = "Invalid two-factor code." };
             }
         }
     }
