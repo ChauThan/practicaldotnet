@@ -2,6 +2,15 @@
 
 This project demonstrates a .NET Worker Service for managing and executing background tasks using a queue-based approach. It is built with .NET 9 and C# 13.0.
 
+## Why Use Channel for the Task Queue?
+
+This project uses `System.Threading.Channels.Channel` to implement the background task queue. Channels provide a modern, thread-safe, and efficient way to handle producer-consumer scenarios in .NET. The key reasons for using a channel are:
+
+- **Thread Safety:** Channels handle synchronization internally, allowing multiple producers and consumers to safely enqueue and dequeue tasks without manual locking.
+- **Backpressure Support:** Bounded channels can apply backpressure, preventing the queue from growing indefinitely and helping to manage resource usage under heavy load.
+- **Efficient Waiting:** Consumers can asynchronously wait for new items without busy-waiting or polling, reducing CPU usage and improving responsiveness.
+- **Graceful Shutdown:** Channels integrate well with cancellation tokens, allowing for clean shutdown of background services.
+
 ## Components
 
 ### 1. IBackgroundTaskQueue
