@@ -1,0 +1,26 @@
+{
+    "name": "electron-net-monorepo",
+    "version": "1.0.0",
+    "description": "Monorepo for Electron client and .NET server integration",
+    "scripts": {
+        "build:server": "cd Server && dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true",
+        "build:client": "cd Client && npm run build",
+        "build": "npm run build:server && npm run build:client",
+        "start": "cd Client && npm start",
+        "dev": "npm run build:server && npm run start",
+        "test": "cd Client && npm test",
+        "clean": "cd Server && dotnet clean && cd ../Client && npm run clean"
+    },
+    "workspaces": [
+        "Client",
+        "Server"
+    ],
+    "devDependencies": {},
+    "keywords": [
+        "electron",
+        "dotnet",
+        "monorepo"
+    ],
+    "author": "",
+    "license": "ISC"
+}
