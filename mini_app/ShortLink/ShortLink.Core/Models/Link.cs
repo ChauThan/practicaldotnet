@@ -16,5 +16,9 @@ namespace ShortLink.Core.Models
 
         // Creation timestamp
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+
+        // Hit count and last access for analytics
+        public int HitCount { get; set; } = 0;
+        public DateTime? LastAccessed { get; set; }
     }
 }

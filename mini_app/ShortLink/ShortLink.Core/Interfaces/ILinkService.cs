@@ -6,6 +6,7 @@ namespace ShortLink.Core.Interfaces
     {
         Task<Link> CreateShortLink(string longUrl);
         Task<Link?> GetLinkByShortCode(string shortCode);
+        Task<Link?> ResolveAndTrackAsync(string shortCode);
         Task DeleteLink(string shortCode);
     }
 }

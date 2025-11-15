@@ -55,5 +55,25 @@ namespace ShortLink.Core.Tests
             Assert.NotNull(found);
             Assert.Equal(created.Id, found!.Id);
         }
+
+        [Fact]
+        public async Task ResolveAndTrack_IncrementsHitCountAndLastAccessed()
+        {
+            // Arrange
+            var repo = new InMemoryLinkRepository();
+            var service = new LinkService(repo);
+            var url = "https://example.com/track";
+
+            // Act
+            var created = await service.CreateShortLink(url);
+            Assert.Equal(0, created.HitCount);
+
+            var resolved = await service.ResolveAndTrackAsync(created.ShortCode);
+
+            // Assert
+            Assert.NotNull(resolved);
+            Assert.Equal(1, resolved!.HitCount);
+            Assert.True(resolved.LastAccessed.HasValue);
+        }
     }
 }

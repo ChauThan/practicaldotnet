@@ -18,15 +18,16 @@ namespace ShortLink.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Link>> CreateLink([FromBody] Link link)
+        public async Task<ActionResult<Link>> CreateLink([FromBody] Models.CreateLinkRequest request)
         {
-            if (link == null)
+            if (request == null || string.IsNullOrWhiteSpace(request.OriginalUrl))
             {
                 return BadRequest();
             }
 
-            var createdLink = await _linkService.CreateShortLink(link.OriginalUrl);
-            return CreatedAtAction(nameof(GetLinkById), new { id = createdLink.Id }, createdLink);
+            var createdLink = await _linkService.CreateShortLink(request.OriginalUrl);
+            // Return Created with Location header pointing to the public short link (/{shortCode})
+            return Created($"/{createdLink.ShortCode}", createdLink);
         }
 
         [HttpGet("{id}")]

@@ -39,8 +39,9 @@ namespace ShortLink.Core.Services
                     throw new InvalidOperationException("Unable to generate a unique short code after multiple attempts.");
                 }
 
-                var all = await _repository.GetAllLinks();
-                if (!all.Any(l => string.Equals(l.ShortCode, shortCode, StringComparison.Ordinal)))
+                // Try to find by short code to avoid costly enumeration
+                var collision = await _repository.GetByShortCode(shortCode);
+                if (collision == null)
                 {
                     break;
                 }
@@ -60,8 +61,20 @@ namespace ShortLink.Core.Services
         public async Task<Link?> GetLinkByShortCode(string shortCode)
         {
             if (string.IsNullOrWhiteSpace(shortCode)) return null;
-            var all = await _repository.GetAllLinks();
-            return all.FirstOrDefault(l => string.Equals(l.ShortCode, shortCode, StringComparison.Ordinal));
+            return await _repository.GetByShortCode(shortCode);
+        }
+
+        public async Task<Link?> ResolveAndTrackAsync(string shortCode)
+        {
+            if (string.IsNullOrWhiteSpace(shortCode)) return null;
+            var link = await _repository.GetByShortCode(shortCode);
+            if (link == null) return null;
+
+            link.HitCount++;
+            link.LastAccessed = DateTime.UtcNow;
+            await _repository.UpdateLink(link);
+
+            return link;
         }
 
         public async Task DeleteLink(string shortCode)
