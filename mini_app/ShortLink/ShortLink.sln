@@ -9,6 +9,8 @@ Project("{F85E285D-4B8E-4A4D-8A3D-8D4B8E4A4D4D}") = "ShortLink.Core", "ShortLink
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShortLink.Core.Tests", "ShortLink.Core.Tests\ShortLink.Core.Tests.csproj", "{FE5BF717-8FA3-4B63-8457-BD381BDADBE0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShortLink.Infrastructure", "ShortLink.Infrastructure\ShortLink.Infrastructure.csproj", "{EB347F41-8BFD-40D9-9991-3090A42FE4BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,18 @@ Global
 		{FE5BF717-8FA3-4B63-8457-BD381BDADBE0}.Release|x64.Build.0 = Release|Any CPU
 		{FE5BF717-8FA3-4B63-8457-BD381BDADBE0}.Release|x86.ActiveCfg = Release|Any CPU
 		{FE5BF717-8FA3-4B63-8457-BD381BDADBE0}.Release|x86.Build.0 = Release|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Debug|x64.Build.0 = Debug|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Debug|x86.Build.0 = Debug|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Release|x64.ActiveCfg = Release|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Release|x64.Build.0 = Release|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Release|x86.ActiveCfg = Release|Any CPU
+		{EB347F41-8BFD-40D9-9991-3090A42FE4BE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

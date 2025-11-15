@@ -70,5 +70,26 @@ curl -X DELETE http://localhost:5000/api/links/{id}
 ## Contributing
 Contributions welcome — send a PR, add tests, document features, or improve performance.
 
+## EF Core + SQLite support
+This project ships with an in-memory repository for development and tests. There is also an EF Core backed repository using SQLite.
+
+How to enable EF-backed repository locally:
+
+1. Open `ShortLink.Api/appsettings.json` and set `UseEfRepository` to `true` (default is `false`).
+
+2. Build and run migrations (this creates `shortlink.db` file by default):
+
+```pwsh
+dotnet tool restore
+dotnet ef migrations add InitialCreate -s ShortLink.Api -p ShortLink.Infrastructure -o Migrations
+dotnet ef database update -s ShortLink.Api -p ShortLink.Infrastructure
+```
+
+3. Start the API (it will use the EF repository when `UseEfRepository` is `true`).
+
+Notes:
+- The `ShortLink.Infrastructure` project contains `ShortLinkDbContext` and `EfLinkRepository`.
+- Migrations are committed to `ShortLink.Infrastructure/Migrations`.
+
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
