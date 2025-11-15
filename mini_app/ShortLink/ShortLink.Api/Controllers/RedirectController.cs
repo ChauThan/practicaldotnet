@@ -14,6 +14,7 @@ namespace ShortLink.Api.Controllers
         }
 
         [HttpGet("{code}")]
+        [Microsoft.AspNetCore.Authorization.AllowAnonymous]
         public async Task<IActionResult> RedirectToOriginal(string code)
         {
             var link = await _linkService.ResolveAndTrackAsync(code);

@@ -91,5 +91,74 @@ Notes:
 - The `ShortLink.Infrastructure` project contains `ShortLinkDbContext` and `EfLinkRepository`.
 - Migrations are committed to `ShortLink.Infrastructure/Migrations`.
 
+## Authentication & Admin (Identity + JWT)
+
+ShortLink includes optional ASP.NET Core Identity with JWT authentication. Identity is only activated when `UseEfRepository` is set to `true` in `ShortLink.Api/appsettings.json` (this uses the EF-backed SQLite DB). The redirect endpoint remains public — only admin operations require a JWT.
+
+Enable Identity + JWT locally:
+
+1. Set EF repository and create the database (migrations are included):
+
+```pwsh
+# enable EF-backed repository (edit appsettings.json or set env var)
+$env:UseEfRepository = 'true'
+
+# ensure migrations are applied
+dotnet ef database update -p ShortLink.Infrastructure -s ShortLink.Api -c ShortLinkDbContext
+``` 
+
+2. Configure JWT secret (recommended to use secrets or env vars in dev):
+
+```pwsh
+# set JWT key (use strong random secret in real deployments)
+$env:Jwt__Key = 'your-very-strong-secret'
+$env:Jwt__Issuer = 'ShortLinkApi'
+$env:Jwt__Audience = 'ShortLinkClients'
+
+# optionally override seeded admin credentials
+$env:Admin__User = 'admin'
+$env:Admin__Email = 'admin@shortlink.local'
+$env:Admin__Password = 'ReplaceWithStrongerPassword!'
+```
+
+3. Start the API:
+
+```pwsh
+dotnet run --project ShortLink.Api
+```
+
+4. Authenticate as admin to get a JWT (AuthController):
+
+```pwsh
+# login and get token
+curl -X POST -H "Content-Type: application/json" \
+   -d '{"username":"admin", "password":"DevAdmin123!"}' \
+   http://localhost:5000/api/auth/login
+
+# response: { "token": "<JWT>" }
+
+# use token for admin endpoints
+curl -H "Authorization: Bearer <JWT>" \
+   -X POST -H "Content-Type: application/json" -d '{"url":"https://example.com"}' \
+   http://localhost:5000/api/links
+```
+
+Notes on seeding: the `IdentitySeeder` will create an `Admin` role and a seeded admin user when `UseEfRepository` is true and the DB is empty. The seeded password is `DevAdmin123!` by default — override with `Admin__Password` as shown above.
+
+Security considerations (important):
+
+- Never store `Jwt:Key` in source code; use User Secrets, environment variables, or a secret manager.
+- Use a long, high-entropy key (e.g., 256+ bits) and rotate it regularly if possible.
+- Use HTTPS in production and require secure cookies if sessions are used.
+- Consider adding refresh tokens or rotating access tokens for longer sessions; refresh tokens should be stored server-side.
+- Limit the privileges of seeded accounts and remove or change the dev password before production.
+
+Next steps and improvements:
+
+- Add registration or admin management endpoints (protected) so admins can be added/removed via API.
+- Implement refresh tokens for a better UX with short-lived access tokens.
+- Consider storing Identity in a separate DB if you need a different lifecycle for auth data.
+- Integrate a secret store (Key Vault, AWS Secrets Manager, etc.) for production secret management.
+
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.

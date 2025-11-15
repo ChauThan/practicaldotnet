@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ShortLink.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using ShortLink.Core.Models;
 
 namespace ShortLink.Api.Controllers
@@ -18,6 +19,7 @@ namespace ShortLink.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Link>> CreateLink([FromBody] Models.CreateLinkRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.OriginalUrl))
@@ -60,6 +62,7 @@ namespace ShortLink.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteLink(Guid id)
         {
             var link = await _linkRepository.GetLinkById(id);
@@ -73,6 +76,7 @@ namespace ShortLink.Api.Controllers
         }
 
         [HttpDelete("short/{shortCode}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteLinkByShortCode(string shortCode)
         {
             var link = await _linkService.GetLinkByShortCode(shortCode);

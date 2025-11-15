@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShortLink.Infrastructure;
 
@@ -10,9 +11,11 @@ using ShortLink.Infrastructure;
 namespace ShortLink.Infrastructure.Migrations
 {
     [DbContext(typeof(ShortLinkDbContext))]
-    partial class ShortLinkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251115164757_AddIdentity")]
+    partial class AddIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
