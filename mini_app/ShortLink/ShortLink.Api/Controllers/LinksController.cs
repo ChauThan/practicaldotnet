@@ -9,10 +9,12 @@ namespace ShortLink.Api.Controllers
     public class LinksController : ControllerBase
     {
         private readonly ILinkRepository _linkRepository;
+        private readonly ILinkService _linkService;
 
-        public LinksController(ILinkRepository linkRepository)
+        public LinksController(ILinkRepository linkRepository, ILinkService linkService)
         {
             _linkRepository = linkRepository;
+            _linkService = linkService;
         }
 
         [HttpPost]
@@ -23,7 +25,7 @@ namespace ShortLink.Api.Controllers
                 return BadRequest();
             }
 
-            var createdLink = await _linkRepository.AddLink(link);
+            var createdLink = await _linkService.CreateShortLink(link.OriginalUrl);
             return CreatedAtAction(nameof(GetLinkById), new { id = createdLink.Id }, createdLink);
         }
 
@@ -31,6 +33,17 @@ namespace ShortLink.Api.Controllers
         public async Task<ActionResult<Link>> GetLinkById(Guid id)
         {
             var link = await _linkRepository.GetLinkById(id);
+            if (link == null)
+            {
+                return NotFound();
+            }
+            return Ok(link);
+        }
+
+        [HttpGet("short/{shortCode}")]
+        public async Task<ActionResult<Link>> GetLinkByShortCode(string shortCode)
+        {
+            var link = await _linkService.GetLinkByShortCode(shortCode);
             if (link == null)
             {
                 return NotFound();
@@ -55,6 +68,19 @@ namespace ShortLink.Api.Controllers
             }
 
             await _linkRepository.DeleteLink(id);
+            return NoContent();
+        }
+
+        [HttpDelete("short/{shortCode}")]
+        public async Task<IActionResult> DeleteLinkByShortCode(string shortCode)
+        {
+            var link = await _linkService.GetLinkByShortCode(shortCode);
+            if (link == null)
+            {
+                return NotFound();
+            }
+
+            await _linkService.DeleteLink(shortCode);
             return NoContent();
         }
     }

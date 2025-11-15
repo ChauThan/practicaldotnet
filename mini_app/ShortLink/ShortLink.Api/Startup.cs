@@ -13,7 +13,8 @@ namespace ShortLink.Api
         {
             services.AddControllers();
             // Register ShortLink.Core services
-            services.AddSingleton<ILinkRepository, LinkService>();
+            services.AddSingleton<ILinkRepository, InMemoryLinkRepository>();
+            services.AddSingleton<ILinkService, LinkService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

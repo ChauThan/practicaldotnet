@@ -1,38 +1,96 @@
+using System.Security.Cryptography;
+using System.Text;
 using ShortLink.Core.Interfaces;
 using ShortLink.Core.Models;
 
 namespace ShortLink.Core.Services
 {
-    public class LinkService : ILinkRepository
+    /// <summary>
+    /// Higher-level link service that manages short-code generation and delegates storage
+    /// operations to an injected <see cref="ILinkRepository"/> implementation.
+    /// </summary>
+    public class LinkService : ILinkService
     {
-        private readonly List<Link> _links = new List<Link>();
+        private const int ShortCodeLength = 6;
+        private static readonly char[] _alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
+        private readonly ILinkRepository _repository;
 
-        public Task<Link> AddLink(Link link)
+        public LinkService(ILinkRepository repository)
         {
-            link.Id = Guid.NewGuid();
-            _links.Add(link);
-            return Task.FromResult(link);
+            _repository = repository;
         }
 
-        public Task<Link?> GetLinkById(Guid id)
+        public async Task<Link> CreateShortLink(string longUrl)
         {
-            var link = _links.FirstOrDefault(l => l.Id == id);
-            return Task.FromResult(link);
-        }
-
-        public Task<IEnumerable<Link>> GetAllLinks()
-        {
-            return Task.FromResult<IEnumerable<Link>>(_links);
-        }
-
-        public Task DeleteLink(Guid id)
-        {
-            var link = _links.FirstOrDefault(l => l.Id == id);
-            if (link != null)
+            if (string.IsNullOrWhiteSpace(longUrl) || !Uri.TryCreate(longUrl, UriKind.Absolute, out var uriResult) || (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps))
             {
-                _links.Remove(link);
+                throw new ArgumentException("Invalid URL. Must be a valid absolute http(s) url.", nameof(longUrl));
             }
-            return Task.CompletedTask;
+
+            // Ensure a unique short code
+            var attempts = 0;
+            string shortCode;
+            do
+            {
+                shortCode = GenerateShortCode(ShortCodeLength);
+                attempts++;
+                if (attempts > 10)
+                {
+                    throw new InvalidOperationException("Unable to generate a unique short code after multiple attempts.");
+                }
+
+                var all = await _repository.GetAllLinks();
+                if (!all.Any(l => string.Equals(l.ShortCode, shortCode, StringComparison.Ordinal)))
+                {
+                    break;
+                }
+            } while (true);
+
+            var link = new Link
+            {
+                OriginalUrl = longUrl,
+                ShortCode = shortCode,
+                DateCreated = DateTime.UtcNow
+            };
+
+            var created = await _repository.AddLink(link);
+            return created;
+        }
+
+        public async Task<Link?> GetLinkByShortCode(string shortCode)
+        {
+            if (string.IsNullOrWhiteSpace(shortCode)) return null;
+            var all = await _repository.GetAllLinks();
+            return all.FirstOrDefault(l => string.Equals(l.ShortCode, shortCode, StringComparison.Ordinal));
+        }
+
+        public async Task DeleteLink(string shortCode)
+        {
+            var link = await GetLinkByShortCode(shortCode);
+            if (link == null)
+            {
+                throw new KeyNotFoundException("Link with the specified short code does not exist.");
+            }
+
+            await _repository.DeleteLink(link.Id);
+        }
+
+        private static string GenerateShortCode(int length)
+        {
+            var data = new byte[length];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(data);
+            }
+
+            var sb = new StringBuilder(length);
+            for (int i = 0; i < length; i++)
+            {
+                var idx = data[i] % _alphabet.Length;
+                sb.Append(_alphabet[idx]);
+            }
+
+            return sb.ToString();
         }
     }
 }
